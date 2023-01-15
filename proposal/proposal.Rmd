@@ -1,0 +1,124 @@
+---
+title: "Project proposal"
+author: "Group172"
+output: github_document
+---
+
+```{r load-packages, message = FALSE}
+library(tidyverse)
+library(broom)
+library(here)
+```
+
+## 1. Introduction
+
+Our group proposes a data analysis on the differences of living standards between developed and developing countries.
+
+#### Questions to explore:
+
+How does life expectancy vary between developing and developed countries
+
+To what extent is there a correlation between factors affecting quality of life (standard of living?) and life expectancy?
+
+#### Topics to explore:
+
+How does population growth vary between developed and developing countries?
+
+Relationship between time spent in education and prevalence of disease (e.g. HIV/AIDS). 
+
+Relationship between expenditure on health and prevalence of diseases (e.g. measles),   life expectancy, infant mortality, population etc.
+
+#### Cases
+
+The cases for the dataset are observations of data collected for a country in a specific year.
+
+#### How was the data collected 
+
+The Global health Observatory keeps track of the health status as well as many other related factors for all countries. Life expectancy, health factors have been collected from the WHO data repository and the corresponding economic data was collected from the United Nation website.
+
+#### Variables affecting quality of life
+1. Quality of education 
+2. Prevalence of disease
+
+
+## 2. Data
+
+```{r glimpse}
+library(tidyverse)
+
+Life_Expectancy_Data <- read_csv(here("data/Life Expectancy Data.csv"))
+
+Life_Expectancy_Data <- Life_Expectancy_Data %>%
+  select(!contains("thinness 5-9 years") & !contains("income composition of resources"))
+
+glimpse(Life_Expectancy_Data)
+```
+
+
+## 3. Data analysis plan
+
+### Outcome variables
+1. Life expectancy
+
+### Predictor variables
+1. Status
+2. Diseases
+3. Alcohol
+4. Health spending
+5. GDP
+6. Thinness
+
+For much of the analysis, countries will be grouped into developing or developed.
+
+### The statistical method(s) that you believe will be useful in answering your question(s). (You can update these later as you work on your project.)
+We will use graphical statistical methods (Descriptive statistics) to visually analyse the relationships and the correlation between 2 or more variables. This will be useful in answering and depicting if in fact there is a relationship between life expectancy (among other variables) and the status of a country. Summary statistics such as mean life expectancy may help Identify at what value of life expectancy does a country change status (from developing to developed) and therefore we can identify if in fact Life Expectancy is a good indicator and has a strong correlation to the status of a country. 
+
+### What results from these specific statistical methods are needed to support your hypothesized answer? 
+We will be able to note down any obvious correlations using the visualisations with statistics such as, mean, standard deviation and potentially basic p-values to give the statistical significance of these relationships. We expect to find higher life expectancy, as well as other standard of living cofactors in developed countries compared to developing countries.
+
+
+### Visualisation 1
+```{r}
+Life_Expectancy_Data %>%
+  filter(Country %in% c("Pakistan", "France")) %>%
+  ggplot(aes(x = Year, y = `Life expectancy`)) +
+  geom_point() +
+  facet_wrap(~Country) +
+  labs(title = "The change in life expectancy in France and Pakistan, between the years 2000 and 2015")
+```
+
+This visualisation is useful for learning about our data because it highlights one example that fits with our hypothesis that life expectancy is higher in developed countries then developing. As well as this, the data is suggesting that life expectancy in Pakistan is rising (which could suggest the same in other developing countries). As part of our project, we will adapt this visualisation to represent data from all developing and developed countries, so as to further justify our point. 
+
+### Visualisation 2
+```{r plot-country-life-expectancy-gdp}
+Life_Expectancy_Data %>%
+  select("Country", "Year", "Life expectancy", "GDP") %>%
+  filter(Country %in% c("France", "Germany", "Italy", "Ukraine", "Australia", "Brazil", "China", "Cuba", "Denmark", "Egypt", "India")) %>% 
+  filter(str_detect(Year, "2008")) %>%
+  rename("life_expectancy" = "Life expectancy",
+         "country" = "Country") %>%
+  group_by("Country") %>%
+  ggplot(aes(x = reorder(country, life_expectancy), y = life_expectancy, fill = GDP)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Life expectancy of selected countries with their GDP",
+       y = "Life expectancy",
+       x = "Country")
+```
+
+It is clear from this visualisation that countries with a higher GDP has a higher life expectancy. However, there are outliers such as Italy, which has high life expectancy compared to its relatively low GDP.
+
+### Visualisation 3
+```{r plot-country-education-hiv}
+Life_Expectancy_Data %>%
+  select("Country", "GDP", "HIV/AIDS", "Schooling") %>%
+  ggplot(aes(x = Schooling, y = `HIV/AIDS`)) +
+  geom_point() +
+  geom_smooth(col = "red") +
+  labs(title = "HIV/AIDS child deaths against average number of years schooling", 
+       y = "HIV/AIDS deaths per 1000 live births (0-4 years old)", 
+       x = "Years of schooling")
+
+```
+
+This visualisation shows that there is no clear association between these factors. This could be because the HIV/AIDS data only accounts for deaths of very young children, therefore their education is not a primary factor in their HIV status.
