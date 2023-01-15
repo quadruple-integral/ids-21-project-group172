@@ -116,7 +116,7 @@ glimpse(life_expectancy)
 ## Presentation
 
 Our presentation.rmd can be found
-[here](https://github.com/ids-s1-21/project-Group172/blob/main/presentation/presentation.Rmd).
+[here](https://github.com/quadruple-integral/ids-21-project-group172/tree/main/presentation).
 
 Our presentation video can be found
 [here](https://media.ed.ac.uk/media/Group172+-+Final+Project/1_zb9znl7k).
