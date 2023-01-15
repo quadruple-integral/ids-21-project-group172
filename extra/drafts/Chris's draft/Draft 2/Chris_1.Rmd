@@ -1,0 +1,183 @@
+---
+title: "Chris_1"
+author: "Chris Shen"
+date: "11/26/2021"
+output: 
+  html_document: 
+    keep_md: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r load-libraries, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(janitor)
+library(here)
+library(parsnip)
+```
+
+### Introduction
+
+This part of the presentation focuses on studying two main topics:
+
+- Effect of GDP (developing vs developed world) on immunisation rate
+
+- Effect of immunisation against diseases (Hepatitis B, Polio & Diphtheria) on under 5 deaths
+
+Data is wrangled then explored through visualisations and summary statistics, followed by some modelling from which conclusions are drawn.
+
+#### Variables
+
+Predictor variables: 
+
+- Average immunisation against disease
+
+- GDP
+
+- Status of country
+
+Outcome variables: 
+
+- Under 5 deaths
+
+#### Hypotheses
+
+- An increase in GDP results in higher immunisation rates
+
+- Developed countries tend to have higher immunisation rates
+
+- An increase immunisation rates results in reduced deaths
+
+### Data
+
+Read data and changed variable names to snake_case using the `clean_names()` function from the `janitor` package.
+```{r clean-data}
+life_expectancy <- read_csv(here("data/Life Expectancy Data.csv")) %>%
+  clean_names()
+```
+
+Created new variable `average_immunity` by taking the average of the three variables `hepatitis_b`, `polio`, `diphtheria`. Saved this as new data frame named `immune`.
+```{r immune}
+immune <- life_expectancy %>%
+  select(country, year, status, gdp, population, under_five_deaths, hepatitis_b, polio, diphtheria) %>%
+  mutate(average_immunity = (hepatitis_b + polio + diphtheria) / 3) %>%
+  mutate(average_immunity = round(average_immunity, digits = 0)) %>%
+  select(country, status, year, gdp, population, under_five_deaths, average_immunity)
+
+immune
+```
+
+### Visualisations: GDP & average immunisation
+
+#### Plot of average immunisation (%) against GDP
+
+```{r}
+immune %>%
+  ggplot(aes(x = gdp, y = average_immunity)) +
+  geom_jitter()
+```
+
+#### Grouped by developed & developing status
+
+```{r}
+immune %>%
+  group_by(status) %>%
+  ggplot(aes(x = gdp, y = average_immunity, colour = status)) +
+  geom_jitter()
+```
+
+#### Facet
+
+```{r}
+immune %>%
+  group_by(status) %>%
+  ggplot(aes(x = gdp, y = average_immunity, colour = status)) +
+  geom_jitter() +
+  facet_wrap(. ~ status) +
+  scale_x_continuous(breaks = c(50000, 125000))
+```
+
+#### Statistics
+
+```{r}
+immune %>%
+  group_by(status) %>%
+  filter(!is.na(gdp), !is.na(average_immunity)) %>%
+  summarise(mean(gdp), min(average_immunity), mean(average_immunity), max(average_immunity))
+```
+
+
+### Visualisations: Average immunisation & under 5 deaths
+
+#### Plot of under 5 deaths against average immunisation (%)
+
+```{r av-immune}
+av_immune <- immune %>%
+  select(year, average_immunity, under_five_deaths)
+```
+
+This plot I cannot tell head or tails.
+```{r plot-under-5-deaths-against-average-immunisation}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  labs(title = "Plot of under 5 deaths against average immunisation (%)",
+       x = "Average immunity (%)",
+       y = "Under 5 deaths (per 1000 of population)")
+```
+
+So I faceted the plot by year and the message is much clearer.
+```{r plot-under-5-deaths-against-average-immunisation-facet}
+av_immune %>%
+  group_by(year) %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  facet_wrap(. ~ year) +
+  labs(title = "Plot of under 5 deaths against average immunisation (%)",
+       subtitle = "By year",
+       x = "Average immunity (%)",
+       y = "Under 5 deaths (per 1000 of population)")
+```
+
+#### Plot of under 5 deaths against average immunisation (%) for year 2008
+
+This year is selected as it works best with the available tool set, namely linear regression.
+```{r av-immune-filter}
+av_immune <- av_immune %>%
+  filter(year == 2008)
+```
+
+```{r plot-under-5-deaths-against-average-immunisation-2000}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  labs(title = "Plot of under 5 deaths against average immunisation (%)",
+       subtitle = "For year 2008",
+       x = "Average immunity (%)",
+       y = "Under 5 deaths (per 1000 of population)")
+```
+
+### Modelling
+
+```{r trendline-plot}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") +
+  labs(title = "Plot of under 5 deaths against average immunisation (%)",
+       subtitle = "For year 2008, with modelling",
+       x = "Average immunity (%)",
+       y = "Under 5 deaths (per 1000 of population)")
+```
+
+```{r plot-regression}
+av_immune_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(under_five_deaths ~ average_immunity, data = av_immune)
+
+tidy(av_immune_fit)
+```
+
+### Conclusion
+
+Confirm hypothesis

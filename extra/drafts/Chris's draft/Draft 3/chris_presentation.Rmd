@@ -1,0 +1,197 @@
+---
+title: "An investigation of the standard of living between developed and developing countries."
+subtitle: <font size = '6'>By analysing the role of life expectancy and other factors affecting quality of life.</font>
+author: <font size = '8'>Group172 <br> Ursula Doyle, Chris Shen, George Boutselis, Osian ap Sion.</font>
+institute: <font size = '10'>University of Edinburgh</font>
+date: <font size = '6'>`r Sys.Date()`</font>
+output:
+  revealjs::revealjs_presentation:
+    self_contained: FALSE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r load-packages, include = FALSE}
+library(rmarkdown)
+library(tidyverse)
+library(tidymodels)
+library(palmerpenguins)
+library(knitr)
+library(revealjs)
+library(here)
+library(janitor)
+```
+
+```{r setup, include = FALSE}
+# For better figure resolution
+knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 6, fig.asp = 0.618, out.width = "80%")
+```
+
+```{r load-data, include = FALSE}
+life_expectancy <- read_csv(here("data/Life Expectancy Data.csv"))
+
+life_expectancy <- life_expectancy %>%
+  clean_names()
+```
+
+# GDP, immunisation & under 5 deaths
+
+<div>
+  <div style = "text-align : left">
+<div>
+
+<font size = '6'>This part of the presentation focuses on studying two main topics:</font>
+
+- <font size = '6'>Effect of GDP on immunisation rate</font>
+
+- <font size = '6'>Effect of immunisation against diseases on under 5 deaths</font>
+
+<font size = '6'>After wrangling, data is explored through visualisations from which conclusions are drawn.</font>
+
+# Variables
+
+<div>
+  <div style = "text-align : left">
+<div>
+
+Predictor variables 
+
+- <font size = '6'>Average immunisation against disease (% population)</font>
+
+- <font size = '6'>GDP (USD)</font>
+
+- <font size = '6'>Status of country (Developing & Developed)</font>
+
+Outcome variables
+
+- <font size = '6'>Under 5 deaths (per 1000 of population)</font>
+
+```{r note1, echo = FALSE}
+# Read data and cleaned names using the `clean_names()` function from the `janitor` package.
+
+# Created new variable called `average_immunity` by taking the average of the three variables `hepatitis_b`, `polio`, `diphtheria`.
+```
+
+```{r clean-data, echo = FALSE, message = FALSE, warning = FALSE}
+life_expectancy <- read_csv(here("data/Life Expectancy Data.csv")) %>%
+  clean_names()
+```
+
+```{r immune, echo = FALSE, message = FALSE, warning = FALSE}
+immune <- life_expectancy %>%
+  select(country, year, status, gdp, population, under_five_deaths, hepatitis_b, polio, diphtheria) %>%
+  mutate(average_immunity = (hepatitis_b + polio + diphtheria) / 3) %>%
+  mutate(average_immunity = round(average_immunity, digits = 0)) %>%
+  select(country, status, year, gdp, population, under_five_deaths, average_immunity)
+```
+
+# Effect of GDP on average immunisation
+
+- <font size = '6'>Do developed countries have higher immunisation rates?</font>
+
+----
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+immune %>%
+  group_by(status) %>%
+  ggplot(aes(x = gdp, y = average_immunity, colour = status)) +
+  geom_jitter() +
+  facet_wrap(. ~ status) +
+  scale_x_continuous(breaks = c(50000, 125000)) +
+  labs(title = "Plot of average immunisation (%) against GDP",
+       subtitle = "Facet by developing and developed countries",
+       x = "GDP (USD)",
+       y = "Average immunity (%)")
+```
+
+----
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+immune %>%
+  group_by(status) %>%
+  filter(!is.na(gdp), !is.na(average_immunity)) %>%
+  summarise(mean(gdp), mean(average_immunity))
+```
+
+- <font size = '6'>Do developed countries have higher immunisation rates?</font>
+
+- <font size = '6'>Yes, and the summary statistics support this.</font>
+
+- <font size = '6'>Average immunity of developed countries are about 10 % higher.</font>
+
+# Effect of average immunisation on under 5 deaths
+
+- <font size = '6'>Does higher average immunisation rates result in lower under 5 deaths?</font>
+
+----
+
+```{r av-immune, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune <- immune %>%
+  select(year, average_immunity, under_five_deaths)
+```
+
+```{r plot-under-5-deaths-against-average-immunisation, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  labs(title = "Plot of under 5 deaths against average immunisation (%)",
+       x = "Average immunity (%)",
+       y = "Under 5 deaths (per 1000)")
+```
+
+<font size = '6'>This visualisation is not great! Need to see year by year.</font>
+
+----
+
+```{r plot-under-5-deaths-against-average-immunisation-facet, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune %>%
+  group_by(year) %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  facet_wrap(. ~ year) +
+  scale_y_continuous(breaks = c(0, 1000, 2000)) +
+  labs(title = "Plot of under 5 deaths against average immunisation (%)",
+       subtitle = "Faceted by years",
+       x = "Average immunity (%)",
+       y = "Under 5 deaths (per 1000)")
+```
+
+----
+
+```{r av-immune-filter, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune <- av_immune %>%
+  filter(year == 2008)
+```
+
+```{r plot-under-5-deaths-against-average-immunisation-2000, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  labs(title = "Plot of under 5 deaths against average immunisation (%)",
+       subtitle = "For year 2008",
+       x = "Average immunity (%)",
+       y = "Under 5 deaths (per 1000)")
+```
+
+----
+
+```{r trendline-peek, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") +
+  labs(title = "Plot of under 5 deaths against average immunisation (%)",
+       subtitle = "For year 2008",
+       x = "Average immunity (%)",
+       y = "Under 5 deaths (per 1000)")
+```
+
+----
+
+- <font size = '6'>Does higher average immunisation rates result in lower under 5 deaths?</font>
+
+Yes, it is clear from the visualisation.
+
+- <font size = '6'>Much of the data points reside at the right, `geom_jitter()` shows this very well.</font>
+
+- <font size = '6'>Due to time constraints modeling part is removed.</font>

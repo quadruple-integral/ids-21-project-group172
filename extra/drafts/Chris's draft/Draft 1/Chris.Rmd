@@ -1,0 +1,165 @@
+---
+title: "Chris"
+author: "Chris Shen"
+date: "11/25/2021"
+output: 
+  html_document: 
+    keep_md: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r warning = FALSE, message = FALSE}
+library(tidyverse)
+library(janitor)
+library(here)
+library(parsnip)
+```
+
+## Data
+
+```{r message = FALSE}
+life_expectancy <- read_csv(here("data/Life Expectancy Data.csv")) %>%
+  clean_names()
+```
+
+```{r}
+immune <- life_expectancy %>%
+  select(country, year, status, gdp, population, under_five_deaths, hepatitis_b, polio, diphtheria) %>%
+  mutate(average_immunity = (hepatitis_b + polio + diphtheria) / 3) %>%
+  mutate(average_immunity = round(average_immunity, digits = 0)) %>%
+  select(country, status, year, gdp, population, under_five_deaths, average_immunity)
+
+immune
+```
+
+## Visualisations
+
+### A developing country: Afghanistan
+
+```{r data}
+immune_afg <- immune %>%
+  select(country, year, gdp, population, under_five_deaths, average_immunity) %>%
+  filter(country == "Afghanistan")
+```
+
+#### Plot 1: GDP over time
+
+```{r gdp over time}
+immune_afg %>%
+  ggplot(aes(x = year, y = gdp)) +
+  geom_col() +
+  geom_smooth(method = "lm") +
+  labs(title = "GDP of Afghanistan over time")
+```
+
+```{r model-gdp}
+afg_gdp_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(gdp ~ year, data = immune_afg)
+
+tidy(afg_gdp_fit)
+```
+
+#### Plot 2: Average immunisation over time
+
+```{r}
+immune_afg %>%
+  ggplot(aes(x = year, y = average_immunity)) +
+  geom_col() +
+  labs(title = "Average immunisation (%) over time")
+```
+
+#### Plot 3: Population over time
+
+```{r}
+immune_afg %>%
+  ggplot(aes(x = year, y = population)) +
+  geom_col() +
+  geom_smooth(method = "loess") +
+  labs(title = "Population over time")
+```
+
+## Modelling 1 - Average immunisation (%) effect on under 5 deaths (per 1000)
+
+#### Visualisations of under 5 deaths against average immunisation
+
+```{r linear}
+av_immune <- immune %>%
+  select(average_immunity, under_five_deaths)
+
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") + 
+  labs(title = "Linear model")
+```
+
+There is too much noise - let's do this for a specific year.
+
+#### Visualisation & model for year 2015
+
+```{r}
+immune_2015 <- immune %>%
+  filter(year == 2015) %>%
+  select(average_immunity, under_five_deaths)
+```
+
+```{r}
+immune_2015 %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") + 
+  labs(title = "Linear model")
+
+immune_2015_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(under_five_deaths ~ average_immunity, data = immune_2015)
+
+tidy(immune_2015_fit)
+```
+
+## Modelling 2 - GDP effect on Average immunisation (%) for year 2015
+
+```{r}
+immune_gdp <- immune %>%
+  filter(year == 2015) %>%
+  select(gdp, average_immunity)
+```
+
+```{r}
+immune_gdp %>%
+  ggplot(aes(x = gdp, y = average_immunity)) +
+  geom_jitter() +
+  geom_smooth()
+```
+
+Unclear what is happening - split into GDP intervals
+
+#### GDP from 0 to 20000
+
+```{r}
+developing <- immune_gdp %>%
+  filter(!gdp > 20000)
+```
+
+```{r}
+developing %>%
+  ggplot(aes(x = gdp, average_immunity)) +
+  geom_jitter() +
+  geom_smooth(method = "lm")
+```
+
+#### GDP over 20000
+
+```{r}
+developing <- immune_gdp %>%
+  filter(gdp > 20000)
+```
+
+```{r}
+developing %>%
+  ggplot(aes(x = gdp, average_immunity)) +
+  geom_jitter() +
+  geom_smooth(method = "lm")
+```
