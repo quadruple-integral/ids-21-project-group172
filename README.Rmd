@@ -1,0 +1,136 @@
+---
+title: An investigation of the standard of living between developed and developing countries.
+author: Group172
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+## Summary
+
+```{r load-packages-presentation, echo = FALSE, warning = FALSE, message = FALSE}
+library(rmarkdown)
+library(tidyverse)
+library(tidymodels)
+library(palmerpenguins)
+library(knitr)
+library(revealjs)
+library(here)
+library(janitor)
+library(ggplot2)
+library(readr)
+library(gganimate)
+library(gifski)
+library(png)
+library(maps)
+```
+
+```{r load-data, echo = FALSE, message = FALSE, warning = FALSE}
+life_expectancy <- read_csv("data/Life Expectancy Data.csv")
+
+life_expectancy <- life_expectancy %>%
+  select(!contains("thinness 5-9 years") & !contains("income composition of resources")) %>%
+  clean_names()
+```
+
+The goal of our research was to investigate the differences in standard of living between developed and developing countries. Measures of standard of living used include GDP, life expectancy, schooling, disease and immunisation rates. We established correlations between these variables through visualisations, summary statistics and some modelling. Data used is from the World Health Organisation (WHO). Explanatory questions are asked and answered through these methods.
+
+We discovered that there was not a strong linear correlation between GDP and life expectancy. However, most developed countries have a higher GDP per capita and life expectancy than developing countries, as shown below in figure 1. Therefore, in order to find a better model, we decided to split our data into testing and training sets. We created a model for all predictor variables (excluding country name) and modelled their relationship with life expectancy. This model has a strong linear correlation.
+
+**Figure 1**: Plot of GDP (USD) against life expectancy (year)
+```{r life-expectancy-gdp, echo = FALSE, warning = FALSE, message = FALSE}
+life_expectancy %>%
+  select(life_expectancy, country, status, gdp) %>%
+  group_by(country) %>%
+  mutate(mean_life = mean(life_expectancy)) %>%
+  ggplot(aes(x = life_expectancy, y = gdp, colour = status)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Life expectancy (year)",
+       y = "GDP per capita (USD)", 
+       title = "How does life expectancy vary with increases in GDP?",
+       colour = "Status") +
+  theme(plot.title = element_text(size = 11)) 
+```
+
+We also investigated the relationships between GDP, immunisation rate and under 5 deaths. Exploratory questions include: Do developed countries have higher immunisation rates? Does higher average immunisation rates result in lower under 5 deaths? In summary, the answer is yes for both questions. Developed countries have on average higher immunisation rates, in fact, about 10% higher. This is also supported by visualisations, as shown in figure 2. Please note that the immunisation rate variable used here is a new variable created from an average of various specific vaccination rate statistics.
+
+```{r immune, echo = FALSE, message = FALSE, warning = FALSE}
+immune <- life_expectancy %>%
+  select(country, year, status, gdp, population, under_five_deaths, hepatitis_b, polio, diphtheria) %>%
+  mutate(average_immunity = (hepatitis_b + polio + diphtheria) / 3) %>%
+  mutate(average_immunity = round(average_immunity, digits = 0)) %>%
+  select(country, status, year, gdp, population, under_five_deaths, average_immunity)
+```
+
+**Figure 2**: Plot of average immunisation (%) against GDP (USD)
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+immune %>%
+  group_by(status) %>%
+  ggplot(aes(x = gdp, y = average_immunity, colour = status)) +
+  geom_jitter() +
+  facet_wrap(. ~ status) +
+  scale_x_continuous(breaks = c(50000, 125000)) +
+  labs(title = "Plot of average immunisation (%) against GDP",
+       subtitle = "Faceted by developing and developed countries",
+       x = "GDP (USD)",
+       y = "Average immunity (%)")
+```
+
+The relationship between immunisation rates and under 5 deaths is first investigated by plotting the average immunisation against under 5 deaths. In this first plot, outliers in the data and a high density of points in the bottom of the plot became apparent, even with the use of the jitter function in ggplot, necessitating further investigation. Faceting by year, it was apparent that the data was cleaner in the year 2008, resulting in the final two plots, showing a clearer correlation. This is shown in figure 3. Unfortunately, choosing the year 2008 limited the amount of data available from countries with low average immunity, implying a more thorough investigation is needed using more data from these countries. In conclusion, we can tentatively say that higher average immunisation is correlated with lower under 5 deaths.
+
+```{r av-immune, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune <- immune %>%
+  select(year, average_immunity, under_five_deaths)
+
+av_immune <- av_immune %>%
+  filter(year == 2008)
+```
+
+**Figure 3**: Plot of under-five deaths against average immunisation (%)
+```{r trendline-peek, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") +
+  labs(title = "Plot of under-five deaths against average immunisation (%)",
+       subtitle = "For year 2008, with trendline",
+       x = "Average immunity (%)",
+       y = "Under-five deaths (per 1000)")
+```
+
+Countries that had higher HIV/AIDS related deaths were quickly identified and we found that these high observations were predominantly in developing countries which also happened to be in Africa. When we compared countries and years spent in school, it was found that the same countries with high HIV/AIDS deaths had on average, little years spent at school. We then plotted 3 line graphs of percentage vaccinated of hepatitis b, polio and diphtheria vs number of years spent at school and found that there was a strong linear relationship between these 2 variables although there were some outliers. We then found the mean worldwide average for HIV/AIDS related deaths and measles related deaths and compared them to all the countries individually. It was found that 100% of developed countries had less HIV deaths than the world average and 96% of developed countries had less measles related deaths than the world average. This is probably as there are outliers where these diseases are epidemics such as HIV in African countries but it is evident that developing countries have a greater prevalence of diseases.
+
+In conclusion we have looked at various variables that measure living standards and life expectancy. From our limited scope of investigation, we are able to conclude that there is a marked improvement of living standards of all aspects when comparing the developed to the developing world. 
+
+A very brief criticism would be that more models could be built for various years/countries/variables. Slopes of these linear models can be compared and used to further support or dismiss conclusion(s). There also could be a focus on quality rather than quantity - statistical outliers in visualisations can be investigated in depth, and presentation layout can be improved.
+
+Word count: 685
+
+```{r glimpse_data, warning = FALSE}
+glimpse(life_expectancy)
+```
+
+## Presentation
+
+Our presentation.rmd can be found
+[here](https://github.com/ids-s1-21/project-Group172/blob/main/presentation/presentation.Rmd).
+
+Our presentation video can be found [here](https://media.ed.ac.uk/media/Group172+-+Final+Project/1_zb9znl7k).
+
+## Data 
+
+Life expectancy data:
+
+- World Health Organization (WHO)
+
+- Published on Kaggle
+
+- From 2000 to 2015
+
+- Statistical analysis on factors influencing life expectancy
+
+- Date viewed: 22/10/2021
+
+## References
+
+- https://www.kaggle.com/kumarajarshi/life-expectancy-who/version/1
