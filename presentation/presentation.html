@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Group172   Ursula Doyle, Chris Shen, George Boutselis, Osian ap Sion." />
+  <meta name="dcterms.date" content="2021-12-02" />
+  <title>An investigation of the standard of living between developed and developing countries.</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="presentation_files/reveal.js-3.3.0.1/css/reveal.css"/>
+
+
+
+<link rel="stylesheet" href="presentation_files/reveal.js-3.3.0.1/css/theme/simple.css" id="theme">
+
+
+  <!-- some tweaks to reveal css -->
+  <style type="text/css">
+    .reveal h1 { font-size: 2.0em; }
+    .reveal h2 { font-size: 1.5em;  }
+    .reveal h3 { font-size: 1.25em;	}
+    .reveal h4 { font-size: 1em;	}
+
+    .reveal .slides>section,
+    .reveal .slides>section>section {
+      padding: 0px 0px;
+    }
+
+
+
+    .reveal table {
+      border-width: 1px;
+      border-spacing: 2px;
+      border-style: dotted;
+      border-color: gray;
+      border-collapse: collapse;
+      font-size: 0.7em;
+    }
+
+    .reveal table th {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      font-weight: bold;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+    .reveal table td {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+
+  </style>
+
+    <style type="text/css">code{white-space: pre;}</style>
+
+
+<!-- Printing and PDF exports -->
+<script id="paper-css" type="application/dynamic-css">
+
+/* Default Print Stylesheet Template
+   by Rob Glazebrook of CSSnewbie.com
+   Last Updated: June 4, 2008
+
+   Feel free (nay, compelled) to edit, append, and
+   manipulate this file as you see fit. */
+
+
+@media print {
+
+	/* SECTION 1: Set default width, margin, float, and
+	   background. This prevents elements from extending
+	   beyond the edge of the printed page, and prevents
+	   unnecessary background images from printing */
+	html {
+		background: #fff;
+		width: auto;
+		height: auto;
+		overflow: visible;
+	}
+	body {
+		background: #fff;
+		font-size: 20pt;
+		width: auto;
+		height: auto;
+		border: 0;
+		margin: 0 5%;
+		padding: 0;
+		overflow: visible;
+		float: none !important;
+	}
+
+	/* SECTION 2: Remove any elements not needed in print.
+	   This would include navigation, ads, sidebars, etc. */
+	.nestedarrow,
+	.controls,
+	.fork-reveal,
+	.share-reveal,
+	.state-background,
+	.reveal .progress,
+	.reveal .backgrounds {
+		display: none !important;
+	}
+
+	/* SECTION 3: Set body font face, size, and color.
+	   Consider using a serif font for readability. */
+	body, p, td, li, div {
+		font-size: 20pt!important;
+		font-family: Georgia, "Times New Roman", Times, serif !important;
+		color: #000;
+	}
+
+	/* SECTION 4: Set heading font face, sizes, and color.
+	   Differentiate your headings from your body text.
+	   Perhaps use a large sans-serif for distinction. */
+	h1,h2,h3,h4,h5,h6 {
+		color: #000!important;
+		height: auto;
+		line-height: normal;
+		font-family: Georgia, "Times New Roman", Times, serif !important;
+		text-shadow: 0 0 0 #000 !important;
+		text-align: left;
+		letter-spacing: normal;
+	}
+	/* Need to reduce the size of the fonts for printing */
+	h1 { font-size: 28pt !important;  }
+	h2 { font-size: 24pt !important; }
+	h3 { font-size: 22pt !important; }
+	h4 { font-size: 22pt !important; font-variant: small-caps; }
+	h5 { font-size: 21pt !important; }
+	h6 { font-size: 20pt !important; font-style: italic; }
+
+	/* SECTION 5: Make hyperlinks more usable.
+	   Ensure links are underlined, and consider appending
+	   the URL to the end of the link for usability. */
+	a:link,
+	a:visited {
+		color: #000 !important;
+		font-weight: bold;
+		text-decoration: underline;
+	}
+	/*
+	.reveal a:link:after,
+	.reveal a:visited:after {
+		content: " (" attr(href) ") ";
+		color: #222 !important;
+		font-size: 90%;
+	}
+	*/
+
+
+	/* SECTION 6: more reveal.js specific additions by @skypanther */
+	ul, ol, div, p {
+		visibility: visible;
+		position: static;
+		width: auto;
+		height: auto;
+		display: block;
+		overflow: visible;
+		margin: 0;
+		text-align: left !important;
+	}
+	.reveal pre,
+	.reveal table {
+		margin-left: 0;
+		margin-right: 0;
+	}
+	.reveal pre code {
+		padding: 20px;
+		border: 1px solid #ddd;
+	}
+	.reveal blockquote {
+		margin: 20px 0;
+	}
+	.reveal .slides {
+		position: static !important;
+		width: auto !important;
+		height: auto !important;
+
+		left: 0 !important;
+		top: 0 !important;
+		margin-left: 0 !important;
+		margin-top: 0 !important;
+		padding: 0 !important;
+		zoom: 1 !important;
+
+		overflow: visible !important;
+		display: block !important;
+
+		text-align: left !important;
+		-webkit-perspective: none;
+		   -moz-perspective: none;
+		    -ms-perspective: none;
+		        perspective: none;
+
+		-webkit-perspective-origin: 50% 50%;
+		   -moz-perspective-origin: 50% 50%;
+		    -ms-perspective-origin: 50% 50%;
+		        perspective-origin: 50% 50%;
+	}
+	.reveal .slides section {
+		visibility: visible !important;
+		position: static !important;
+		width: auto !important;
+		height: auto !important;
+		display: block !important;
+		overflow: visible !important;
+
+		left: 0 !important;
+		top: 0 !important;
+		margin-left: 0 !important;
+		margin-top: 0 !important;
+		padding: 60px 20px !important;
+		z-index: auto !important;
+
+		opacity: 1 !important;
+
+		page-break-after: always !important;
+
+		-webkit-transform-style: flat !important;
+		   -moz-transform-style: flat !important;
+		    -ms-transform-style: flat !important;
+		        transform-style: flat !important;
+
+		-webkit-transform: none !important;
+		   -moz-transform: none !important;
+		    -ms-transform: none !important;
+		        transform: none !important;
+
+		-webkit-transition: none !important;
+		   -moz-transition: none !important;
+		    -ms-transition: none !important;
+		        transition: none !important;
+	}
+	.reveal .slides section.stack {
+		padding: 0 !important;
+	}
+	.reveal section:last-of-type {
+		page-break-after: avoid !important;
+	}
+	.reveal section .fragment {
+		opacity: 1 !important;
+		visibility: visible !important;
+
+		-webkit-transform: none !important;
+		   -moz-transform: none !important;
+		    -ms-transform: none !important;
+		        transform: none !important;
+	}
+	.reveal section img {
+		display: block;
+		margin: 15px 0px;
+		background: rgba(255,255,255,1);
+		border: 1px solid #666;
+		box-shadow: none;
+	}
+
+	.reveal section small {
+		font-size: 0.8em;
+	}
+
+}  
+</script>
+
+
+<script id="pdf-css" type="application/dynamic-css">
+    
+/**
+ * This stylesheet is used to print reveal.js
+ * presentations to PDF.
+ *
+ * https://github.com/hakimel/reveal.js#pdf-export
+ */
+
+* {
+	-webkit-print-color-adjust: exact;
+}
+
+body {
+	margin: 0 auto !important;
+	border: 0;
+	padding: 0;
+	float: none !important;
+	overflow: visible;
+}
+
+html {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+/* Remove any elements not needed in print. */
+.nestedarrow,
+.reveal .controls,
+.reveal .progress,
+.reveal .playback,
+.reveal.overview,
+.fork-reveal,
+.share-reveal,
+.state-background {
+	display: none !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	text-shadow: 0 0 0 #000 !important;
+}
+
+.reveal pre code {
+	overflow: hidden !important;
+	font-family: Courier, 'Courier New', monospace !important;
+}
+
+ul, ol, div, p {
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: auto;
+	display: block;
+	overflow: visible;
+	margin: auto;
+}
+.reveal {
+	width: auto !important;
+	height: auto !important;
+	overflow: hidden !important;
+}
+.reveal .slides {
+	position: static;
+	width: 100%;
+	height: auto;
+
+	left: auto;
+	top: auto;
+	margin: 0 !important;
+	padding: 0 !important;
+
+	overflow: visible;
+	display: block;
+
+	-webkit-perspective: none;
+	   -moz-perspective: none;
+	    -ms-perspective: none;
+	        perspective: none;
+
+	-webkit-perspective-origin: 50% 50%; /* there isn't a none/auto value but 50-50 is the default */
+	   -moz-perspective-origin: 50% 50%;
+	    -ms-perspective-origin: 50% 50%;
+	        perspective-origin: 50% 50%;
+}
+
+.reveal .slides section {
+	page-break-after: always !important;
+
+	visibility: visible !important;
+	position: relative !important;
+	display: block !important;
+	position: relative !important;
+
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+	min-height: 1px;
+
+	opacity: 1 !important;
+
+	-webkit-transform-style: flat !important;
+	   -moz-transform-style: flat !important;
+	    -ms-transform-style: flat !important;
+	        transform-style: flat !important;
+
+	-webkit-transform: none !important;
+	   -moz-transform: none !important;
+	    -ms-transform: none !important;
+	        transform: none !important;
+}
+
+.reveal section.stack {
+	margin: 0 !important;
+	padding: 0 !important;
+	page-break-after: avoid !important;
+	height: auto !important;
+	min-height: auto !important;
+}
+
+.reveal img {
+	box-shadow: none;
+}
+
+.reveal .roll {
+	overflow: visible;
+	line-height: 1em;
+}
+
+/* Slide backgrounds are placed inside of their slide when exporting to PDF */
+.reveal section .slide-background {
+	display: block !important;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: -1;
+}
+
+/* All elements should be above the slide-background */
+.reveal section>* {
+	position: relative;
+	z-index: 1;
+}
+
+/* Display slide speaker notes when 'showNotes' is enabled */
+.reveal .speaker-notes-pdf {
+	display: block;
+	width: 100%;
+	max-height: none;
+	left: auto;
+	top: auto;
+	z-index: 100;
+}
+
+/* Display slide numbers when 'slideNumber' is enabled */
+.reveal .slide-number-pdf {
+	display: block;
+	position: absolute;
+	font-size: 14px;
+}
+
+</script>
+
+
+<script>
+var style = document.createElement( 'style' );
+style.type = 'text/css';
+var style_script_id = window.location.search.match( /print-pdf/gi ) ? 'pdf-css' : 'paper-css';
+var style_script = document.getElementById(style_script_id).text;
+style.innerHTML = style_script;
+document.getElementsByTagName('head')[0].appendChild(style);
+</script>
+
+    <script src="presentation_files/header-attrs-2.11/header-attrs.js"></script>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title"><font size = '8'>An investigation of the standard of living between developed and developing countries.</font></h1>
+  <h1 class="subtitle"><font size = '5'>By analysing the role of life expectancy and other factors affecting quality of life.</font></h1>
+    <h2 class="author"><font size = '6'>Group172 <br> Ursula Doyle, Chris Shen, George Boutselis, Osian ap Sion.</font></h2>
+    <h3 class="date"><font size = '6'>2021-12-02</font></h3>
+</section>
+
+<section id="life-expectancy-vs.-gdp-per-capita" class="title-slide slide level1">
+<h1>Life expectancy vs. GDP per capita</h1>
+<p><img src="presentation_files/figure-revealjs/life%20expectancy%20vs%20GDP-1.png" width="80%" /></p>
+</section>
+
+<section id="modelling-relationship-between-gdp-and-life-expectancy" class="title-slide slide level1">
+<h1>Modelling relationship between GDP and life expectancy</h1>
+<pre><code>## [1] 0.2149924</code></pre>
+</section>
+
+<section id="residual-plot" class="title-slide slide level1">
+<h1>Residual Plot</h1>
+<p><img src="presentation_files/figure-revealjs/recode-species-1.png" width="80%" /></p>
+</section>
+
+<section id="relashionship-between-diseases-and-schooling" class="title-slide slide level1">
+<h1>Relashionship Between Diseases and Schooling</h1>
+<p>This part of the presentation focuses on:</p>
+<ul>
+<li><p>The relationship between the average years spent in school and Deaths from HIV/AIDS in different countries</p></li>
+<li><p>The relationship between vaccinations and years spent in school</p></li>
+</ul>
+</section>
+
+<section>
+<section id="hivaids-vs-schooling" class="title-slide slide level1">
+<h1>HIV/AIDS vs Schooling</h1>
+<p><img src="presentation_files/figure-revealjs/HIV/AIDS_map-1.png" width="80%" /></p>
+</section>
+<section id="map-showing-schooling-years" class="slide level2">
+<h2>Map Showing Schooling Years</h2>
+<p><img src="presentation_files/figure-revealjs/schooling_map-1.png" width="80%" /></p>
+</section></section>
+<section id="vaccinations-vs-schooling" class="title-slide slide level1">
+<h1>Vaccinations vs Schooling</h1>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="presentation_files/figure-revealjs/vaccination_vs_school-1.png" width="80%" /></p>
+</section>
+
+<section id="summary-statistics" class="title-slide slide level1">
+<h1>Summary Statistics</h1>
+<pre><code>## # A tibble: 2 x 3
+##   Developed_Countries HIV_AIDS measles
+##   &lt;chr&gt;                  &lt;dbl&gt;   &lt;dbl&gt;
+## 1 %Greater than mean         0    3.96
+## 2 %less than mean          100   96.0</code></pre>
+<ul>
+<li><p>100% of developed countries had less than the mean deaths of HIV/AIDS worldwide.</p></li>
+<li><p>96% of developed countries had less than the mean deaths of measles worldwide.</p></li>
+</ul>
+</section>
+
+<section id="gdp-immunisation-under-five-deaths" class="title-slide slide level1">
+<h1>GDP, immunisation &amp; under-five deaths</h1>
+<div>
+<div style = "text-align : left">
+<div>
+
+<p><font size = '6'>This part of the presentation focuses on studying two main topics:</font></p>
+<ul>
+<li><p><font size = '6'>Effect of GDP on immunisation rate</font></p></li>
+<li><p><font size = '6'>Effect of immunisation against diseases on under-five deaths</font></p></li>
+</ul>
+<p><font size = '6'>After wrangling, data is explored through visualisations from which conclusions are drawn.</font></p>
+</section>
+
+<section id="variables" class="title-slide slide level1">
+<h1>Variables</h1>
+<div>
+<div style = "text-align : left">
+<div>
+
+<p>Predictor variables</p>
+<ul>
+<li><p><font size = '6'>Average immunisation against disease (% population)</font></p></li>
+<li><p><font size = '6'>GDP (USD)</font></p></li>
+<li><p><font size = '6'>Status of country (Developing &amp; Developed)</font></p></li>
+</ul>
+<p>Outcome variables</p>
+<ul>
+<li><font size = '6'>under-five deaths (per 1000 of population)</font></li>
+</ul>
+</section>
+
+<section>
+<section id="effect-of-gdp-on-average-immunisation" class="title-slide slide level1">
+<h1>Effect of GDP on average immunisation</h1>
+<ul>
+<li><font size = '6'>Do developed countries have higher immunisation rates?</font></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<p><img src="presentation_files/figure-revealjs/unnamed-chunk-1-1.png" width="80%" /></p>
+</section>
+<section class="slide level2">
+
+<pre><code>## # A tibble: 2 x 3
+##   status     `mean(gdp)` `mean(average_immunity)`
+##   &lt;chr&gt;            &lt;dbl&gt;                    &lt;dbl&gt;
+## 1 Developed       19383.                     91.7
+## 2 Developing       4531.                     82.0</code></pre>
+<ul>
+<li><p><font size = '6'>Do developed countries have higher immunisation rates?</font></p></li>
+<li><p><font size = '6'>Yes, and the summary statistics support this.</font></p></li>
+<li><p><font size = '6'>Average immunity of developed countries are about 10 % higher.</font></p></li>
+</ul>
+</section></section>
+<section>
+<section id="effect-of-average-immunisation-on-under-five-deaths" class="title-slide slide level1">
+<h1>Effect of average immunisation on under-five deaths</h1>
+<ul>
+<li><font size = '6'>Does higher average immunisation rates result in lower under-five deaths?</font></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<p><img src="presentation_files/figure-revealjs/plot-under-5-deaths-against-average-immunisation-1.png" width="80%" /></p>
+<p><font size = '6'>It is hard to draw conclusions from this visualisation, perhaps a faceted plot by year will help.</font></p>
+</section>
+<section class="slide level2">
+
+<p><img src="presentation_files/figure-revealjs/plot-under-5-deaths-against-average-immunisation-facet-1.png" width="80%" /></p>
+</section>
+<section class="slide level2">
+
+<p><img src="presentation_files/figure-revealjs/plot-under-5-deaths-against-average-immunisation-2000-1.png" width="80%" /></p>
+</section>
+<section class="slide level2">
+
+<p><img src="presentation_files/figure-revealjs/trendline-peek-1.png" width="80%" /></p>
+</section>
+<section class="slide level2">
+
+<ul>
+<li><font size = '6'>Does higher average immunisation rates result in lower under-five deaths?</font></li>
+</ul>
+<p>Yes, it is clear from the visualisation.</p>
+<ul>
+<li><p><font size = '6'>Much of the data points reside at the right, <code>geom_jitter()</code> shows this very well.</font></p></li>
+<li><p><font size = '6'>Due to time constraints modeling part is removed.</font></p></li>
+</ul>
+</section></section>
+<section id="modelling-life-expectancy-using-testing-and-training-data" class="title-slide slide level1">
+<h1>Modelling life expectancy using testing and training data</h1>
+<pre><code>## [1] 2054   22</code></pre>
+<pre><code>## [1] 685  22</code></pre>
+<pre><code>## # A tibble: 19 x 5
+##    term                            estimate     std.error statistic   p.value
+##    &lt;chr&gt;                              &lt;dbl&gt;         &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+##  1 (Intercept)                      5.37e+1 0.987            54.4   1.13e-321
+##  2 statusDeveloping                -7.19e-1 0.404            -1.78  7.52e-  2
+##  3 adult_mortality                 -1.65e-2 0.00113         -14.6   2.64e- 44
+##  4 infant_deaths                    9.80e-2 0.0131            7.48  1.45e- 13
+##  5 alcohol                         -6.98e-2 0.0392           -1.78  7.47e-  2
+##  6 percentage_expenditure           5.76e-4 0.000221          2.61  9.18e-  3
+##  7 hepatitis_b                     -8.77e-3 0.00542          -1.62  1.06e-  1
+##  8 measles                         -1.04e-5 0.0000136        -0.769 4.42e-  1
+##  9 bmi                              3.11e-2 0.00704           4.42  1.07e-  5
+## 10 under_five_deaths               -7.31e-2 0.00943          -7.75  1.98e- 14
+## 11 polio                            8.79e-3 0.00619           1.42  1.56e-  1
+## 12 diphtheria                       1.80e-2 0.00724           2.48  1.32e-  2
+## 13 hiv_aids                        -4.29e-1 0.0214          -20.0   6.49e- 77
+## 14 gdp                             -2.73e-5 0.0000355        -0.768 4.43e-  1
+## 15 population                      -1.81e-9 0.00000000206    -0.878 3.80e-  1
+## 16 thinness_1_19_years             -9.10e-3 0.0641           -0.142 8.87e-  1
+## 17 thinness_5_9_years              -5.33e-2 0.0634           -0.840 4.01e-  1
+## 18 income_composition_of_resources  1.14e+1 1.03             11.1   4.18e- 27
+## 19 schooling                        8.51e-1 0.0715           11.9   6.13e- 31</code></pre>
+</section>
+
+<section id="training-data" class="title-slide slide level1">
+<h1>Training Data</h1>
+<pre><code>## `geom_smooth()` using method = &#39;gam&#39; and formula &#39;y ~ s(x, bs = &quot;cs&quot;)&#39;</code></pre>
+<p><img src="presentation_files/figure-revealjs/unnamed-chunk-4-1.png" width="80%" /></p>
+</section>
+
+<section id="testing-data" class="title-slide slide level1">
+<h1>Testing Data</h1>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="presentation_files/figure-revealjs/unnamed-chunk-5-1.png" width="80%" /></p>
+</section>
+
+<section id="conclusion" class="title-slide slide level1">
+<h1>Conclusion</h1>
+<ul>
+<li>Overall, there is a strong correlation between life expectancy and standard of living. As demonstrated through modelling, individual variables are not sufficient in predicting life expectancy. But by using the whole model, we managed to form a more reliable model to predict life expectancy.</li>
+</ul>
+</section>
+    </div>
+  </div>
+
+  <script src="presentation_files/reveal.js-3.3.0.1/lib/js/head.min.js"></script>
+  <script src="presentation_files/reveal.js-3.3.0.1/js/reveal.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        // Display controls in the bottom right corner
+        controls: true,
+        // Display a presentation progress bar
+        progress: true,
+        // Display the page number of the current slide
+        slideNumber: false,
+        // Push each slide change to the browser history
+        history: true,
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+        // Enable the slide overview mode
+        overview: true,
+        // Vertical centering of slides
+        center: false,
+        // Enables touch navigation on devices with touch input
+        touch: true,
+        // Loop the presentation
+        loop: false,
+        // Change the presentation direction to be RTL
+        rtl: false,
+        // Turns fragments on and off globally
+        fragments: true,
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+        // Transition style
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        // Transition speed
+        transitionSpeed: 'default', // default/fast/slow
+        // Transition style for full page slide backgrounds
+        backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+
+
+        // Optional reveal.js plugins
+        dependencies: [
+        ]
+      });
+    </script>
+  <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+<script>
+  (function() {
+    if (window.jQuery) {
+      Reveal.addEventListener( 'slidechanged', function(event) {  
+        window.jQuery(event.previousSlide).trigger('hidden');
+        window.jQuery(event.currentSlide).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+
+  </body>
+</html>

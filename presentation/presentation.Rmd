@@ -1,0 +1,405 @@
+---
+title: <font size = '8'>An investigation of the standard of living between developed and developing countries.</font>
+subtitle: <font size = '5'>By analysing the role of life expectancy and other factors affecting quality of life.</font>
+author: <font size = '6'>Group172 <br> Ursula Doyle, Chris Shen, George Boutselis, Osian ap Sion.</font>
+institute: <font size = '5'>University of Edinburgh</font>
+date: <font size = '6'>`r Sys.Date()`</font>
+output:
+  revealjs::revealjs_presentation:
+    self_contained: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r load-packages, include = FALSE}
+library(rmarkdown)
+library(tidyverse)
+library(tidymodels)
+library(palmerpenguins)
+library(knitr)
+library(revealjs)
+library(here)
+library(janitor)
+library(ggplot2)
+library(readr)
+library(gganimate)
+library(gifski)
+library(png)
+library(maps)
+```
+
+```{r setup, include=FALSE}
+# For better figure resolution
+knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 6, fig.asp = 0.618, out.width = "80%")
+```
+
+```{r load-data, include=FALSE}
+life_expectancy <- read_csv(here("data/Life Expectancy Data.csv"))
+
+life_expectancy <- life_expectancy %>%
+  clean_names()
+
+mapdata <- map_data("world")
+```
+
+# Life expectancy vs. GDP per capita
+
+```{r life expectancy vs GDP, echo = FALSE, warning=FALSE}
+life_expectancy %>%
+  select(life_expectancy, country, status, gdp) %>%
+  group_by(country) %>%
+  mutate(mean_life = mean(life_expectancy)) %>%
+  ggplot(aes(x = life_expectancy, y = gdp, colour = status)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Life Expectancy", y = "GDP per capita", title = "How does life expectancy vary with increases in GDP?", colour = "Status") +
+  theme(plot.title = element_text(size = 11)) 
+```
+
+# Modelling relationship between GDP and life expectancy
+
+```{r model GDP life, echo = FALSE}
+
+life_expec_gdp_main <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(life_expectancy ~ gdp, data = life_expectancy)
+
+glance(life_expec_gdp_main)$adj.r.squared
+
+```
+
+#  Residual Plot
+
+```{r recode-species, echo = FALSE}
+life_expec_gdp <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(life_expectancy ~ gdp, data = life_expectancy)
+
+life_expec_gdp_aug <- augment(life_expec_gdp$fit)
+
+ggplot(life_expec_gdp_aug, mapping = aes(x = .fitted, y = .resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "gray", lty = "dashed") +
+  labs(x = "Predicted height", y = "Residuals")
+
+```
+
+# Relashionship Between Diseases and Schooling
+
+This part of the presentation focuses on:
+
+ - The relationship between the average years spent in school and Deaths from HIV/AIDS
+ in different countries
+ 
+ - The relationship between vaccinations and years spent in school
+
+# HIV/AIDS vs Schooling
+
+```{r HIV/AIDS_map, echo = FALSE}
+life_expectancy %>%
+  filter(hiv_aids < 10) %>%
+  mutate(hiv_aids_deaths = hiv_aids*1000) %>%
+  mutate(region = country) %>%
+  select(region, hiv_aids_deaths) %>%
+  right_join(mapdata, by = "region") %>%
+  ggplot(aes(x = long, y = lat, group = group)) +
+  geom_polygon(color = "black", aes(fill = hiv_aids_deaths)) +
+  scale_fill_gradient(name = "No. HIV/AIDS deaths", low = "yellow", high = "red",
+                      na.value = "grey50") +
+  theme(
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank (),
+    axis.ticks = element_blank (),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    rect = element_blank()
+  )
+```
+
+## Map Showing Schooling Years
+
+```{r schooling_map, echo = FALSE}
+life_expectancy %>%
+  filter(hiv_aids <10) %>%
+  mutate(region = country) %>%
+  select(region, schooling) %>%
+  right_join(mapdata, by = "region") %>%
+  ggplot(aes(x = long, y = lat, group = group)) +
+  geom_polygon(color = "black", aes(fill = schooling)) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank (),
+    axis.ticks = element_blank (),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    rect = element_blank()
+  )
+```
+
+# Vaccinations vs Schooling
+
+```{r vaccination_vs_school, echo = FALSE, warning = FALSE}
+life_expectancy %>%
+  select(schooling, polio, hepatitis_b, diphtheria, status) %>%
+  pivot_longer(cols = c("polio", "hepatitis_b", "diphtheria"), names_to = "Disease", values_to = "Vaccinated") %>%
+  mutate(Vaccinated = Vaccinated/100) %>%
+  ggplot(aes(x = schooling, y = Vaccinated)) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE) +
+  facet_wrap(~Disease) +
+  theme_minimal() +
+  scale_y_continuous(labels = percent)  +
+  labs(title = "Line Graph Showing % Vaccinated vs Time Spent in Schools")
+```
+
+# Summary Statistics
+
+```{r summary statistics, echo = FALSE}
+hiv_aids_mean <- mean(life_expectancy$hiv_aids)
+measles_mean <- mean(life_expectancy$measles)
+  
+developed_GTM_hiv_aids <- nrow(life_expectancy %>%
+filter(hiv_aids > hiv_aids_mean & status == "Developed"))*100/nrow(life_expectancy%>% filter(!is.na(hiv_aids) & status == "Developed"))
+
+developed_LTM_hiv_aids <- nrow(life_expectancy %>%
+filter(hiv_aids < hiv_aids_mean & status == "Developed" & !is.na(hiv_aids)))*100/nrow(life_expectancy %>% filter(!is.na(hiv_aids) & status == "Developed"))
+
+developed_GTM_measles <- nrow(life_expectancy %>%
+filter(measles > measles_mean & status == "Developed"))*100/nrow(life_expectancy %>% filter(!is.na(measles) & status == "Developed"))
+
+developed_LTM_measles <- nrow(life_expectancy %>%
+filter(measles < measles_mean & status == "Developed"))*100/nrow(life_expectancy %>% filter(!is.na(measles) & status == "Developed"))
+
+
+stats <- tribble(
+ ~ Developed_Countries, ~ HIV_AIDS, ~ measles,
+ "%Greater than mean", developed_GTM_hiv_aids, developed_GTM_measles,
+ "%less than mean", developed_LTM_hiv_aids, developed_LTM_measles
+)
+stats
+```
+
+- 100% of developed countries had less than the mean deaths of HIV/AIDS worldwide.
+
+- 96% of developed countries had less than the mean deaths of measles worldwide.
+
+# GDP, immunisation & under-five deaths
+
+<div>
+  <div style = "text-align : left">
+<div>
+
+<font size = '6'>This part of the presentation focuses on studying two main topics:</font>
+
+- <font size = '6'>Effect of GDP on immunisation rate</font>
+
+- <font size = '6'>Effect of immunisation against diseases on under-five deaths</font>
+
+<font size = '6'>After wrangling, data is explored through visualisations from which conclusions are drawn.</font>
+
+# Variables
+
+<div>
+  <div style = "text-align : left">
+<div>
+
+Predictor variables 
+
+- <font size = '6'>Average immunisation against disease (% population)</font>
+
+- <font size = '6'>GDP (USD)</font>
+
+- <font size = '6'>Status of country (Developing & Developed)</font>
+
+Outcome variables
+
+- <font size = '6'>under-five deaths (per 1000 of population)</font>
+
+```{r note1, echo = FALSE}
+# Read data and cleaned names using the `clean_names()` function from the `janitor` package.
+
+# Created new variable called `average_immunity` by taking the average of the three variables `hepatitis_b`, `polio`, `diphtheria`.
+```
+
+```{r clean-data, echo = FALSE, message = FALSE, warning = FALSE}
+life_expectancy <- read_csv(here("data/Life Expectancy Data.csv")) %>%
+  clean_names()
+```
+
+```{r immune, echo = FALSE, message = FALSE, warning = FALSE}
+immune <- life_expectancy %>%
+  select(country, year, status, gdp, population, under_five_deaths, hepatitis_b, polio, diphtheria) %>%
+  mutate(average_immunity = (hepatitis_b + polio + diphtheria) / 3) %>%
+  mutate(average_immunity = round(average_immunity, digits = 0)) %>%
+  select(country, status, year, gdp, population, under_five_deaths, average_immunity)
+```
+
+# Effect of GDP on average immunisation
+
+- <font size = '6'>Do developed countries have higher immunisation rates?</font>
+
+----
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+immune %>%
+  group_by(status) %>%
+  ggplot(aes(x = gdp, y = average_immunity, colour = status)) +
+  geom_jitter() +
+  facet_wrap(. ~ status) +
+  scale_x_continuous(breaks = c(50000, 125000)) +
+  labs(title = "Plot of average immunisation (%) against GDP",
+       subtitle = "Faceted by developing and developed countries",
+       x = "GDP (USD)",
+       y = "Average immunity (%)")
+```
+
+----
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+immune %>%
+  group_by(status) %>%
+  filter(!is.na(gdp), !is.na(average_immunity)) %>%
+  summarise(mean(gdp), mean(average_immunity))
+```
+
+- <font size = '6'>Do developed countries have higher immunisation rates?</font>
+
+- <font size = '6'>Yes, and the summary statistics support this.</font>
+
+- <font size = '6'>Average immunity of developed countries are about 10 % higher.</font>
+
+# Effect of average immunisation on under-five deaths
+
+- <font size = '6'>Does higher average immunisation rates result in lower under-five deaths?</font>
+
+----
+
+```{r av-immune, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune <- immune %>%
+  select(year, average_immunity, under_five_deaths)
+```
+
+```{r plot-under-5-deaths-against-average-immunisation, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  labs(title = "Plot of under-five deaths against average immunisation (%)",
+       x = "Average immunity (%)",
+       y = "under-five deaths (per 1000)")
+```
+
+<font size = '6'>It is hard to draw conclusions from this visualisation, perhaps a faceted plot by year will help.</font>
+
+----
+
+```{r plot-under-5-deaths-against-average-immunisation-facet, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune %>%
+  group_by(year) %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  facet_wrap(. ~ year) +
+  scale_y_continuous(breaks = c(0, 1000, 2000)) +
+  labs(title = "Plot of under-five deaths against average immunisation (%)",
+       subtitle = "Faceted by years",
+       x = "Average immunity (%)",
+       y = "under-five deaths (per 1000)")
+```
+
+----
+
+```{r av-immune-filter, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune <- av_immune %>%
+  filter(year == 2008)
+```
+
+```{r plot-under-5-deaths-against-average-immunisation-2000, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  labs(title = "Plot of under-five deaths against average immunisation (%)",
+       subtitle = "For year 2008",
+       x = "Average immunity (%)",
+       y = "under-five deaths (per 1000)")
+```
+
+----
+
+```{r trendline-peek, echo = FALSE, warning = FALSE, message = FALSE}
+av_immune %>%
+  ggplot(aes(x = average_immunity, y = under_five_deaths)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") +
+  labs(title = "Plot of under-five deaths against average immunisation (%)",
+       subtitle = "For year 2008, with trendline",
+       x = "Average immunity (%)",
+       y = "under-five deaths (per 1000)")
+```
+
+----
+
+- <font size = '6'>Does higher average immunisation rates result in lower under-five deaths?</font>
+
+Yes, it is clear from the visualisation.
+
+- <font size = '6'>Much of the data points reside at the right, `geom_jitter()` shows this very well.</font>
+
+- <font size = '6'>Due to time constraints modeling part is removed.</font>
+
+# Modelling life expectancy using testing and training data
+
+```{r, echo = FALSE}
+set.seed(2022) 
+life_split <- initial_split(life_expectancy)
+
+life_train <- training(life_split)
+dim(life_train)
+
+life_test <- testing(life_split)
+dim(life_test)
+
+life_mod <- linear_reg() %>%
+  set_engine("lm") 
+
+life_rec <- recipe(life_expectancy ~ ., data = life_train) %>%
+  update_role(country, new_role = "ID") %>%
+  step_rm(year, total_expenditure) %>%
+  step_zv(all_predictors())
+
+life_wflow <- workflow() %>%
+  add_model(life_mod) %>%
+  add_recipe(life_rec)
+
+life_fit <- life_wflow %>%
+  fit(data = life_train)
+
+tidy(life_fit) %>%
+  print(n = 20)
+
+```
+
+# Training Data
+
+```{r echo = FALSE, warning = FALSE}
+life_train_pred <- predict(life_fit, life_train) %>%
+  bind_cols(life_train %>% select(life_expectancy, country))
+
+ggplot(life_train_pred, mapping = aes(x = .pred, y = life_expectancy)) +
+  geom_point() +
+  geom_smooth()
+
+```
+
+# Testing Data
+
+```{r echo = FALSE, warning = FALSE}
+life_test_pred <- predict(life_fit, life_test) %>%
+  bind_cols(life_test %>% select(life_expectancy, country)) 
+
+ggplot(life_test_pred, mapping = aes(x = .pred, y = life_expectancy)) +
+  geom_point() +
+  geom_smooth()
+
+```
+
+# Conclusion
+
+- Overall, there is a strong correlation between life expectancy and standard of living. As demonstrated through modelling, individual variables are not sufficient in predicting life expectancy. But by using the whole model, we managed to form a more reliable model to predict life expectancy.
