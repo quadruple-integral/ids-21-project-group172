@@ -1,7 +1,11 @@
 An investigation of the standard of living between developed and
 developing countries.
 ================
-Group172
+Group172:
+Christopher Shen
+George Boutselis
+Ursula Doyle
+Osian ap Sion
 
 ## Summary
 
